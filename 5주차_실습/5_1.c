@@ -80,6 +80,8 @@ void addNodeBefore(Node **header, Node **trailer, Node **p, char e) {
 	return;
 
 }
+//new  -> ㅊ++에서 사용
+//new라는 변수명 사용하지 말기 
 
 void add(Node **header, Node **trailer, char e, int r, int *n) {
 
@@ -124,6 +126,7 @@ void delete(Node **header, Node **trailer, int r, int *n) {
 	return; 
 
 }
+//delete -> free(동적할당해제) 해주기 
 
 int main() {
 
