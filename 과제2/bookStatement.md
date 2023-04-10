@@ -9,5 +9,5 @@
 - 삽입, 삭제, 열람을 하나의 프로그램으로 묶어서 구현하라. 
 - 주함수에서 반복적으로 사용자의 명령코드 a(add) 또는 r(remove)에 따라 해당 메쏘드를 호출하여 처리하는 방식으로 작성하라 
   추가로 e(traverseShareElements) 및 g(traverseShareGroups) 명령코드도 수행하도록 하라 
-- 
+- 예를 들어 
  
