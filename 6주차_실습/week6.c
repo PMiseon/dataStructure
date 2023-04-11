@@ -27,7 +27,7 @@ Node* addPoly(Node *A, Node *B) {
 
 	Node *i = A->next;
 	Node *j = B->next;
-	Node *k = result; 
+	Node *k = result;
 
 	while ((i != NULL) && (j != NULL)) {
 		if (i->exp > j->exp) {
@@ -67,8 +67,19 @@ void traverse(Node *result) {
 	Node *p = result->next;
 
 	while (p != NULL) {
-		printf("%d %d ",p->coef, p->exp );
+		printf("%d %d ", p->coef, p->exp);
 		p = p->next;
+	}
+}
+
+void freeMemory(Node *header) { //동적할당 해제하기 
+	Node *p = header->next;
+	Node *nextNode;
+
+	while (p != NULL) {
+		nextNode = p->next;
+		free(p);
+		p = nextNode;
 	}
 }
 
@@ -81,12 +92,12 @@ int main() {
 	B->next = NULL; //headerB
 
 
-	int n, m; 
+	int n, m;
 	int coef, exp;
 
-	scanf("%d",&n);
+	scanf("%d", &n);
 	int i;
-	
+
 	for (i = 0; i < n; i++) {
 		scanf("%d %d", &coef, &exp);
 		appendTerm(A, coef, exp);
@@ -101,5 +112,13 @@ int main() {
 
 	Node *result = addPoly(A, B);
 	traverse(result);
-	//scanf("%m")
+	
+
+	//동적할당해제하기 
+	freeMemory(A);
+	free(A);
+	freeMemory(B);
+	free(B);
+	freeMemory(result);
+	free(result);
 }
