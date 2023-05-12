@@ -5,11 +5,10 @@
 #include <windows.h>
 #pragma warning (disable : 4996)
 
-//#define NUM 10
 #define NUM 1000000  
 
 typedef struct Node {
-	int elem; 
+	int elem;
 	int min; //입력했을때 min값 
 	struct Node *next; //단일연결리스트 이용하기 
 }Node;
@@ -19,20 +18,20 @@ typedef struct Node {
 void push(Node *stack, int *min, int *count, int e) {
 	*count = *count + 1; //count++
 	//printf("count : %d\n", *count);
-	
+
 	if (stack->next == NULL) {
 		*min = e; //첫번째 입력 elem = 첫번째 min 
 	}
 
 	if (*min > e) { //min인지 확인 -> 기록 
-		*min = e; 
+		*min = e;
 	}
 
 	Node *newNode = (malloc(sizeof(Node)));
 	newNode->elem = e;
 	newNode->min = *min;
 	newNode->next = NULL;
-	
+
 	newNode->next = stack->next;
 	stack->next = newNode;
 
@@ -51,14 +50,38 @@ void pushMillion(Node *stack, int *min, int* count) {
 		randNum = (rand() % (9999 - 1000 + 1)) + 1000;
 		//a~b 범위의 난수 만들기 -> rand()%(b-a+1)+a
 
-		push(stack, min, count, randNum);
+		//push
+		*count = *count + 1; //count++
+
+		if (stack->next == NULL) {
+			*min = randNum; //첫번째 입력 elem = 첫번째 min 
+		}
+
+		if (*min > randNum) { //min인지 확인 -> 기록 
+			*min = randNum;
+		}
+
+		Node *newNode = (malloc(sizeof(Node)));
+		newNode->elem = randNum;
+		newNode->min = *min;
+		newNode->next = NULL;
+
+		newNode->next = stack->next;
+		stack->next = newNode;
 	}
-	return; 
+	return;
 }
 
-int pop(Node *stack, int *count) {
+int pop(Node *stack, int *count, int *flag) {
+
+	if (*count <= 0) {
+		printf("EmptyStackException\n");
+		*flag = 1;
+		return NULL; //empty Stack Exception
+	}
+
 	*count = *count - 1; //count--;
-	
+
 	Node *p = stack->next; //pop->delete 
 	int elem = p->elem; //출력용 
 	stack->next = p->next;
@@ -69,20 +92,38 @@ int pop(Node *stack, int *count) {
 void popMillion(Node *stack, int *count) {
 	int i;
 	for (i = 0; i < NUM; i++) {
-		pop(stack, count);
+		//pop(stack, count);
+		if (*count <= 0) { //NUM개 이하인 경우에는 예외 처리 
+			//popMillion이 남은 스택이 없어질 때까지 실행은 되지만, emptyStackException이 출력된다. 
+
+			printf("EmptyStackException\n");
+			break; //emptyStackException
+		}
+		*count = *count - 1; //count--;
+
+		Node *p = stack->next; //pop->delete 
+		stack->next = p->next;
+		free(p); //동적할당해제 
 	}
 
 	return;
 }
 
-int findMin(Node *stack) {
+int findMin(Node *stack, int *flag, int *count) {
+
+	if (*count <= 0) { //스택에 원소가 없는 경우 
+		*flag = 1;
+		printf("EmptyStackException\n");
+		return NULL;
+	}
+
 	return (stack->next)->min; //pop()->min 값 
 }
 
 void check(Node *stack) { //입력확인용 
 	Node *p = stack->next;
 	while (p != NULL) {
-		printf(" %d,%d->", p->min,p->elem);
+		printf(" %d,%d->", p->min, p->elem);
 		p = p->next;
 	}
 	printf("\n");
@@ -91,24 +132,23 @@ void check(Node *stack) { //입력확인용
 
 void freeMemory(Node *stack) { //동적할당 해제하기 
 	Node *p = stack->next;
-	Node *nextNode; 
+	Node *nextNode;
 
 	while (p != NULL) {
 		nextNode = p->next;
 		free(p);
 		p = nextNode;
 	}
-
 }
 
 int main() {
 
 	Node *stack = malloc(sizeof(Node)); //header
 	stack->next = NULL;
-	
-	char cmd; 
-	int tmp; 
-	int min; 
+
+	char cmd;
+	int tmp;
+	int min;
 	int count = 0;
 	int answer = 0; //결과 
 
@@ -130,7 +170,7 @@ int main() {
 
 		else if (cmd == 'p') { //push 
 			scanf("%d", &tmp); //원소 e
-
+			
 			QueryPerformanceFrequency(&ticksPerSec);
 			QueryPerformanceCounter(&start);
 			push(stack, &min, &count, tmp); //push 
@@ -146,17 +186,22 @@ int main() {
 			pushMillion(stack, &min, &count); //pushMillion
 			QueryPerformanceCounter(&end);
 			diff.QuadPart = end.QuadPart - start.QuadPart;
-			
+
 			printf("pushMillion (%d), cputime = %2.12f\n", count, ((double)diff.QuadPart / (double)ticksPerSec.QuadPart));
 		}
 
 		else if (cmd == 'o') { //pop
+			int flag = 0;
+
 			QueryPerformanceFrequency(&ticksPerSec);
 			QueryPerformanceCounter(&start);
-			answer = pop(stack, &count);
+			answer = pop(stack, &count, &flag);
 			QueryPerformanceCounter(&end);
 			diff.QuadPart = end.QuadPart - start.QuadPart;
-			printf("pop %d (%d),cputime = %2.12f\n", answer, count, ((double)diff.QuadPart / (double)ticksPerSec.QuadPart));
+
+			if (flag != 1) { //emptyStackException이 발생하지 않은 경우에만 출력한다 
+				printf("pop %d (%d),cputime = %2.12f\n", answer, count, ((double)diff.QuadPart / (double)ticksPerSec.QuadPart));
+			}
 		}
 
 		else if (cmd == 'O') { //popMillion
@@ -170,18 +215,23 @@ int main() {
 		}
 
 		else if (cmd == 'f') { //findMin
+			int flag = 0;
+
 			QueryPerformanceFrequency(&ticksPerSec);
 			QueryPerformanceCounter(&start);
-			answer = findMin(stack);
+			answer = findMin(stack,&flag, &count);
 			QueryPerformanceCounter(&end);
 			diff.QuadPart = end.QuadPart - start.QuadPart;
-			printf("min %d (%d), cputime = %2.12f\n", answer, count, ((double)diff.QuadPart / (double)ticksPerSec.QuadPart));
+
+			if (flag != 1) {
+				printf("min %d (%d), cputime = %2.12f\n", answer, count, ((double)diff.QuadPart / (double)ticksPerSec.QuadPart));
+			}
 		}
 
 		//else if (cmd == 'c') { //check
 		//	check(stack);
 		//}
 
-		getchar();
+		//getchar();
 	}
 }
