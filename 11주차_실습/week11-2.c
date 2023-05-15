@@ -119,6 +119,19 @@ void print(Deque* deque) {
 	return;
 }
 
+void freeMemory(Deque *deque) {
+	Node *p = deque->front;
+	Node *nextNode;
+
+	while (p != NULL) {
+		nextNode = p->next;
+		free(p);
+		p = nextNode;
+	}
+
+	return; 
+}
+
 int main() {
 	Deque deque; 
 	init(&deque);
@@ -166,7 +179,7 @@ int main() {
 	}
 
 
-	//freeMemory
+	freeMemory(&deque);
 	return 0;
 }
 
