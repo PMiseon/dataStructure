@@ -200,11 +200,27 @@ int pop(Stack *s) { //o
 }
 
 void freeMemory(Stack *s) {
+	Node *p, *nextNode; 
 	//free Q1
-
+	p = s->Q1->front;
+	if (p != NULL) {
+		while (p == s->Q1->rear) {
+			nextNode = p->next;
+			free(p);
+			p = nextNode;
+		}
+	}
 	//free Q2
-
-	//free stack 
+	
+	p = s->Q2->front;
+	if (p != NULL) {
+		while (p == s->Q2->rear) {
+			nextNode = p->next;
+			free(p);
+			p = nextNode;
+		}
+	}
+	//free stack
 }
 
 int main() {
@@ -216,21 +232,21 @@ int main() {
 
 	//시간측정
 	LARGE_INTEGER ticksPerSec;
-	LARGE_INTEGER start, end, diff,sum ;
-	//float sum;
+	LARGE_INTEGER start, end, diff ;
+	float sumTime;
 
 
 	while (1) {
 		scanf("%c", &cmd);
 
 		if (cmd == 'q') {
-			//freeMemory; 
+			freeMemory(s);
+			free(s);
+			//printf("프로그램 종료\n");
 			break;
 		}
 
 		else if (cmd == 'S') { //isEmpty()
-
-
 			QueryPerformanceFrequency(&ticksPerSec);
 			QueryPerformanceCounter(&start);
 			int ans = isEmpty(s); //isEmpty 실행 
@@ -263,37 +279,24 @@ int main() {
 			//수정 필요 
 			
 			int tmp;
-			scanf("%d", &tmp);
-
-			QueryPerformanceFrequency(&ticksPerSec);
-			QueryPerformanceCounter(&start);
-			push(s, tmp);
-			QueryPerformanceCounter(&end);
-			diff.QuadPart = end.QuadPart - start.QuadPart;
-			sum.QuadPart = 0;
-			sum.QuadPart += diff.QuadPart;
-
-			/*while (1) {
-				int tmp;
-				char c = NULL;
+			sumTime = 0;
+			while (1) {
 				scanf("%d", &tmp);
-				getchar(c);
-				printf("check %d", tmp);
-
-				if (c == NULL) {
-					break;
-				}
+				char c = getchar(); //정수 입력뒤 '\n'가 바로 입력되면 break
 
 				QueryPerformanceFrequency(&ticksPerSec);
 				QueryPerformanceCounter(&start);
 				push(s, tmp);
 				QueryPerformanceCounter(&end);
 				diff.QuadPart = end.QuadPart - start.QuadPart;
-				sum += diff.QuadPart;
-			}*/
-			
+				sumTime += diff.QuadPart/ (double)ticksPerSec.QuadPart;
 
-			printf("OK (%d),cputime = %2.12f\n", s->size, sum.QuadPart);
+
+				if (c == '\n') {
+					break;
+				}
+			}
+			printf("OK (%d),cputime = %2.12f\n", s->size, sumTime);
 		}
 
 		else if (cmd == 'P') { //pushMillion
@@ -322,9 +325,4 @@ int main() {
 
 	}
 
-	//if (isEmpty(s)) {
-	//	printf("Empty\n");
-	//}
-
-	//checkStack(s);
 }
